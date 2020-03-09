@@ -1,2 +1,2 @@
-# sg-GO-utils
+# GO-utils
 Data Infrastructure Utils Repo For GOLang
