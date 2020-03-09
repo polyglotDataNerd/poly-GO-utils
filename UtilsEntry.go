@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	read "github.com/polyglotDataNerd/zip-Go-Utils/reader"
-	scan "github.com/polyglotDataNerd/zip-Go-Utils/scanner"
-	database "github.com/polyglotDataNerd/zip-Go-Utils/database"
-	goutils "github.com/polyglotDataNerd/zip-Go-Utils/utils"
+	read "github.com/polyglotDataNerd/zib-Go-Utils/reader"
+	scan "github.com/polyglotDataNerd/zib-Go-Utils/scanner"
+	database "github.com/polyglotDataNerd/zib-Go-Utils/database"
+	goutils "github.com/polyglotDataNerd/zib-Go-Utils/utils"
 	"runtime"
 	"strings"
 	"sync"

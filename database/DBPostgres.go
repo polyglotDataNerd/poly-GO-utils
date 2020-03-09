@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
-	goutils "github.com/polyglotDataNerd/zip-Go-Utils/utils"
+	goutils "github.com/polyglotDataNerd/zib-Go-Utils/utils"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net"
