@@ -1,4 +1,4 @@
-package sgdatabase
+package database
 
 //BASIC CRUD and CONNECTION FUNCTONS/METHODS FOR APACHE CASSANDRA
 
@@ -6,8 +6,8 @@ import (
 	c "github.com/gocql/gocql"
 	read "github.com/polyglotDataNerd/zip-Go-Utils/reader"
 	"github.com/polyglotDataNerd/zip-Go-Utils/scanner"
-	aws "github.com/polyglotDataNerd/zip-Go-Utils/sgaws"
-	utils "github.com/polyglotDataNerd/zip-Go-Utils/sgutils"
+	aws "github.com/polyglotDataNerd/zip-Go-Utils/aws"
+	utils "github.com/polyglotDataNerd/zip-Go-Utils/utils"
 	"strings"
 	"sync"
 	"time"

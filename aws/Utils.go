@@ -1,4 +1,4 @@
-package sgaws
+package aws
 
 /* for vgo install sdk using
 go get -u github.com/goaws/goaws-sdk-go
@@ -19,7 +19,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/aws/aws-sdk-go/service/ssm"
-	goutils "github.com/polyglotDataNerd/zip-Go-Utils/sgutils"
+	goutils "github.com/polyglotDataNerd/zip-Go-Utils/utils"
 	"io"
 	"io/ioutil"
 	"os"

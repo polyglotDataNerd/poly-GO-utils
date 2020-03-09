@@ -1,4 +1,4 @@
-package sgutils
+package utils
 
 import (
 	"os"

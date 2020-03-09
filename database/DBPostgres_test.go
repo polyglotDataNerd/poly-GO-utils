@@ -1,4 +1,4 @@
-package sgdatabase
+package database
 
 import (
 	p "github.com/magiconair/properties"

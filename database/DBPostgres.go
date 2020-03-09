@@ -1,4 +1,4 @@
-package sgdatabase
+package database
 
 //https://gist.github.com/vinzenz/7b6b1bf8d0c2b2b1e0d69a15ba9f02c7
 //https://blog.alexellis.io/golang-writing-unit-tests/
@@ -6,7 +6,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
-	goutils "github.com/polyglotDataNerd/zip-Go-Utils/sgutils"
+	goutils "github.com/polyglotDataNerd/zip-Go-Utils/utils"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net"
