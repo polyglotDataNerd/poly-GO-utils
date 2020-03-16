@@ -38,4 +38,12 @@ func Init(traceHandle io.Writer,
 }
 func init() {
 	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr)
+	logpath := "/var/tmp/utils.log"
+	flag.Parse()
+	file, err := os.Create(logpath)
+	if err != nil {
+		Error.Print(err)
+	}
+	Log := log.New(file, "", log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
+	Log.Println("LogFile : " + logpath)
 }
