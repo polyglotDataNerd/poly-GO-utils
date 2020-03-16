@@ -22,7 +22,7 @@ func Init(traceHandle io.Writer,
 
 	logpath := "/var/tmp/utils.log"
 	file, err := os.OpenFile(logpath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	defer file.Close()
+	// defer file.Close()
 	if err != nil {
 		Error.Print(err)
 	}
