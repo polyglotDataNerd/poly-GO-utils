@@ -3,8 +3,8 @@ package scanner
 import (
 	"bufio"
 	"fmt"
-	aws "github.com/polyglotDataNerd/zib-Go-Utils/aws"
-	utils "github.com/polyglotDataNerd/zib-Go-Utils/utils"
+	aws "github.com/polyglotDataNerd/zib-Go-utils/aws"
+	utils "github.com/polyglotDataNerd/zib-Go-utils/utils"
 	"strings"
 	"sync"
 )
