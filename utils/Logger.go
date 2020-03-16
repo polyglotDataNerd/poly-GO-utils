@@ -21,7 +21,7 @@ func Init(traceHandle io.Writer,
 	errorHandle io.Writer) {
 
 	logpath := "/var/tmp/utils.log"
-	file, err := os.OpenFile(logpath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err := os.OpenFile(logpath, os.O_TRUNC|os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	// defer file.Close()
 	if err != nil {
 		Error.Print(err)
@@ -30,12 +30,14 @@ func Init(traceHandle io.Writer,
 	Trace = log.New(traceHandle,
 		"TRACE: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
-	Trace.SetOutput(file)
+	TFile := Trace
+	TFile.SetOutput(file)
 
 	Info = log.New(infoHandle,
 		"INFO: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
-	Info.SetOutput(file)
+	IFile := Info
+	IFile.SetOutput(file)
 
 	Warning = log.New(warningHandle,
 		"WARNING: ",
