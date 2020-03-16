@@ -1,4 +1,4 @@
-module github.com/polyglotDataNerd/zib-Go-Utils
+module github.com/polyglotDataNerd/zib-Go-utils
 
 go 1.12
 
