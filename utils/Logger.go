@@ -2,17 +2,9 @@ package utils
 
 import (
 	"flag"
-	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
-	"github.com/jcxplorer/cwlogger"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
-	"time"
-
 	//"time"
 )
 
@@ -57,22 +49,4 @@ func init() {
 		Error.Print(err)
 	}
 	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr, file)
-	output, _ := ioutil.ReadFile("/var/tmp/utils.log")
-	CloudWatchPut("yelp-parser", 30).Log(time.Now(), string(output))
-}
-
-func CloudWatchPut(logGroup string, retention int) *cwlogger.Logger {
-
-	sess, _ := session.NewSession(&aws.Config{
-		Region: aws.String("us-west-2")},
-	)
-	logger, err := cwlogger.New(&cwlogger.Config{
-		Client:       cloudwatchlogs.New(sess),
-		LogGroupName: logGroup,
-		Retention:    retention,
-	})
-	if err != nil {
-		fmt.Errorf("%v", err)
-	}
-	return logger
 }
