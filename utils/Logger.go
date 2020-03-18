@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
@@ -9,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/jcxplorer/cwlogger"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"time"
@@ -21,7 +21,6 @@ var (
 	Info    *log.Logger
 	Warning *log.Logger
 	Error   *log.Logger
-	buff    bytes.Buffer
 )
 
 // https://www.ardanlabs.com/blog/2013/11/using-log-package-in-go.html
@@ -29,36 +28,37 @@ func Init(traceHandle io.Writer,
 	infoHandle io.Writer,
 	warningHandle io.Writer,
 	errorHandle io.Writer,
-	logger *cwlogger.Logger) {
+	file *os.File) {
 
 	flag.Parse()
 	Trace = log.New(traceHandle,
 		"TRACE: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
+	Trace.SetOutput(file)
 
 	Info = log.New(infoHandle,
 		"INFO: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
-	infoHandle.Write(buff.Bytes())
-	logger.Log(time.Now(), buff.String())
+	Info.SetOutput(file)
 
 	Warning = log.New(warningHandle,
 		"WARNING: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
-	warningHandle.Write(buff.Bytes())
+	Warning.SetOutput(file)
 
 	Error = log.New(errorHandle,
 		"ERROR: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
-	errorHandle.Write(buff.Bytes())
+	Error.SetOutput(file)
 }
 func init() {
-	//var buff bytes.Buffer
-	//file, err := os.OpenFile("/var/tmp/utils.log", os.O_TRUNC|os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	//if err != nil {
-	//	Error.Print(err)
-	//}
-	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr, CloudWatchPut("yelp-parser",  30))
+	file, err := os.OpenFile("/var/tmp/utils.log", os.O_TRUNC|os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		Error.Print(err)
+	}
+	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr, file)
+	output, _ := ioutil.ReadFile("/var/tmp/utils.log")
+	CloudWatchPut("yelp-parser", 30).Log(time.Now(), string(output))
 }
 
 func CloudWatchPut(logGroup string, retention int) *cwlogger.Logger {
