@@ -34,6 +34,7 @@ func Init(traceHandle io.Writer,
 		"INFO: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
 	infoHandle.Write(buff.Bytes())
+	fmt.Printf("%s", buff.String())
 	Info.SetOutput(file)
 
 	Warning = log.New(warningHandle,
@@ -53,6 +54,4 @@ func init() {
 		Error.Print(err)
 	}
 	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr, buff, file)
-	fmt.Printf("%s", buff.String())
-
 }
