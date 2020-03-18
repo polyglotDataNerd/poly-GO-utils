@@ -3,10 +3,11 @@ package utils
 import (
 	"bytes"
 	"flag"
-	"fmt"
+	"github.com/polyglotDataNerd/zib-Go-utils/aws"
 	"io"
 	"log"
 	"os"
+	"time"
 )
 
 var (
@@ -14,28 +15,30 @@ var (
 	Info    *log.Logger
 	Warning *log.Logger
 	Error   *log.Logger
+	buff    bytes.Buffer
 )
 
 // https://www.ardanlabs.com/blog/2013/11/using-log-package-in-go.html
 func Init(traceHandle io.Writer,
 	infoHandle io.Writer,
 	warningHandle io.Writer,
-	errorHandle io.Writer,
-	buff bytes.Buffer,
-	file *os.File) {
+	errorHandle io.Writer) {
+
+	loggerClient := aws.CloudWatch{
+		LogGroup:  "yelp-parser",
+		Retention: 24,
+	}.CloudWatchPut()
 
 	flag.Parse()
 	Trace = log.New(traceHandle,
 		"TRACE: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
-	traceHandle.Write(buff.Bytes())
 
 	Info = log.New(infoHandle,
 		"INFO: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
 	infoHandle.Write(buff.Bytes())
-	fmt.Printf("%s", buff.String())
-	Info.SetOutput(file)
+	loggerClient.Log(time.Now(), buff.String())
 
 	Warning = log.New(warningHandle,
 		"WARNING: ",
@@ -48,10 +51,10 @@ func Init(traceHandle io.Writer,
 	errorHandle.Write(buff.Bytes())
 }
 func init() {
-	var buff bytes.Buffer
-	file, err := os.OpenFile("/var/tmp/utils.log", os.O_TRUNC|os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		Error.Print(err)
-	}
-	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr, buff, file)
+	//var buff bytes.Buffer
+	//file, err := os.OpenFile("/var/tmp/utils.log", os.O_TRUNC|os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	//if err != nil {
+	//	Error.Print(err)
+	//}
+	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr)
 }
