@@ -50,8 +50,7 @@ func init() {
 		Error.Print(err)
 	}
 	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr, buff)
-	s := buff.String()
-	file.WriteString(s)
+	file.Write(buff.Bytes())
 	//fmt.Printf("%s", s)
 
 }
