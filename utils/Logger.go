@@ -3,7 +3,6 @@ package utils
 import (
 	"bytes"
 	"flag"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -54,6 +53,6 @@ func init() {
 	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr, buff)
 	s := buff.String()
 	file.WriteString(s)
-	fmt.Printf("%s", s)
+	//fmt.Printf("%s", s)
 
 }
