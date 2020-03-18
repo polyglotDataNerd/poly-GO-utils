@@ -9,12 +9,10 @@ import (
 )
 
 var (
-	Trace     *log.Logger
-	Info      *log.Logger
-	Warning   *log.Logger
-	Error     *log.Logger
-	buff      bytes.Buffer
-	outLogger *log.Logger
+	Trace   *log.Logger
+	Info    *log.Logger
+	Warning *log.Logger
+	Error   *log.Logger
 )
 
 // https://www.ardanlabs.com/blog/2013/11/using-log-package-in-go.html
@@ -46,7 +44,8 @@ func Init(traceHandle io.Writer,
 	errorHandle.Write(buff.Bytes())
 }
 func init() {
-	file, err := os.OpenFile("/var/tmp/utils.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	var buff bytes.Buffer
+	file, err := os.OpenFile("/var/tmp/utils.log", os.O_TRUNC|os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		Error.Print(err)
 	}
