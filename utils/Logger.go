@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -20,7 +21,8 @@ func Init(traceHandle io.Writer,
 	infoHandle io.Writer,
 	warningHandle io.Writer,
 	errorHandle io.Writer,
-	buff bytes.Buffer) {
+	buff bytes.Buffer,
+	file *os.File) {
 
 	flag.Parse()
 	Trace = log.New(traceHandle,
@@ -32,6 +34,7 @@ func Init(traceHandle io.Writer,
 		"INFO: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
 	infoHandle.Write(buff.Bytes())
+	Info.SetOutput(file)
 
 	Warning = log.New(warningHandle,
 		"WARNING: ",
@@ -49,8 +52,7 @@ func init() {
 	if err != nil {
 		Error.Print(err)
 	}
-	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr, buff)
-	file.Write(buff.Bytes())
-	//fmt.Printf("%s", s)
+	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr, buff, file)
+	fmt.Printf("%s", buff.String())
 
 }
