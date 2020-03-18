@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -51,6 +52,6 @@ func init() {
 		Error.Print(err)
 	}
 	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr, buff)
-	outLogger.Printf("%s", buff.String())
+	fmt.Printf("%s", buff.String())
 	file.Write(buff.Bytes())
 }
