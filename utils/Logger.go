@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/jcxplorer/cwlogger"
 	"io"
 	"log"
@@ -15,11 +15,6 @@ import (
 
 	//"time"
 )
-
-type CloudWatch struct {
-	LogGroup  string
-	Retention int
-}
 
 var (
 	Trace   *log.Logger
@@ -33,13 +28,8 @@ var (
 func Init(traceHandle io.Writer,
 	infoHandle io.Writer,
 	warningHandle io.Writer,
-	errorHandle io.Writer) {
-
-	loggerClient := CloudWatch{
-		LogGroup:  "yelp-parser",
-		Retention: 24,
-	}
-	logs := loggerClient.CloudWatchPut()
+	errorHandle io.Writer,
+	logger *cwlogger.Logger) {
 
 	flag.Parse()
 	Trace = log.New(traceHandle,
@@ -50,7 +40,7 @@ func Init(traceHandle io.Writer,
 		"INFO: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
 	infoHandle.Write(buff.Bytes())
-	logs.Log(time.Now(), buff.String())
+	logger.Log(time.Now(), buff.String())
 
 	Warning = log.New(warningHandle,
 		"WARNING: ",
@@ -68,18 +58,18 @@ func init() {
 	//if err != nil {
 	//	Error.Print(err)
 	//}
-	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr)
+	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr, CloudWatchPut("yelp-parser",  30))
 }
 
-func (c *CloudWatch) CloudWatchPut() *cwlogger.Logger {
+func CloudWatchPut(logGroup string, retention int) *cwlogger.Logger {
 
 	sess, _ := session.NewSession(&aws.Config{
 		Region: aws.String("us-west-2")},
 	)
 	logger, err := cwlogger.New(&cwlogger.Config{
 		Client:       cloudwatchlogs.New(sess),
-		LogGroupName: c.LogGroup,
-		Retention:    c.Retention,
+		LogGroupName: logGroup,
+		Retention:    retention,
 	})
 	if err != nil {
 		fmt.Errorf("%v", err)
