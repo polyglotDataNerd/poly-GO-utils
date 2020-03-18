@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bytes"
 	"flag"
 	"io"
 	"log"
@@ -8,10 +9,10 @@ import (
 )
 
 var (
-	Trace      *log.Logger
-	Info       *log.Logger
-	Warning    *log.Logger
-	Error      *log.Logger
+	Trace   *log.Logger
+	Info    *log.Logger
+	Warning *log.Logger
+	Error   *log.Logger
 )
 
 // https://www.ardanlabs.com/blog/2013/11/using-log-package-in-go.html
@@ -19,33 +20,35 @@ func Init(traceHandle io.Writer,
 	infoHandle io.Writer,
 	warningHandle io.Writer,
 	errorHandle io.Writer,
-	file *os.File) {
+	buff bytes.Buffer) {
 
 	flag.Parse()
 	Trace = log.New(traceHandle,
 		"TRACE: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
-	Trace.SetOutput(file)
+	traceHandle.Write(buff.Bytes())
 
 	Info = log.New(infoHandle,
 		"INFO: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
-	Info.SetOutput(file)
+	infoHandle.Write(buff.Bytes())
 
 	Warning = log.New(warningHandle,
 		"WARNING: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
-	Warning.SetOutput(file)
+	warningHandle.Write(buff.Bytes())
 
 	Error = log.New(errorHandle,
 		"ERROR: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
-	Error.SetOutput(file)
+	errorHandle.Write(buff.Bytes())
 }
 func init() {
+	var buff bytes.Buffer
 	file, err := os.OpenFile("/var/tmp/utils.log", os.O_TRUNC|os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		Error.Print(err)
 	}
-	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr, file)
+	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr, buff)
+	file.Write(buff.Bytes())
 }
