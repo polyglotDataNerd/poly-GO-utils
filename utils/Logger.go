@@ -3,11 +3,13 @@ package utils
 import (
 	"bytes"
 	"flag"
-	"github.com/polyglotDataNerd/zib-Go-utils/aws"
+	//"github.com/polyglotDataNerd/zib-Go-utils/aws"
+
+	//"github.com/polyglotDataNerd/zib-Go-utils/aws"
 	"io"
 	"log"
 	"os"
-	"time"
+	//"time"
 )
 
 var (
@@ -24,10 +26,10 @@ func Init(traceHandle io.Writer,
 	warningHandle io.Writer,
 	errorHandle io.Writer) {
 
-	loggerClient := aws.CloudWatch{
-		LogGroup:  "yelp-parser",
-		Retention: 24,
-	}.CloudWatchPut()
+	//loggerClient := aws.CloudWatch{
+	//	LogGroup:  "yelp-parser",
+	//	Retention: 24,
+	//}.CloudWatchPut()
 
 	flag.Parse()
 	Trace = log.New(traceHandle,
@@ -38,7 +40,7 @@ func Init(traceHandle io.Writer,
 		"INFO: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
 	infoHandle.Write(buff.Bytes())
-	loggerClient.Log(time.Now(), buff.String())
+	//loggerClient.Log(time.Now(), buff.String())
 
 	Warning = log.New(warningHandle,
 		"WARNING: ",
