@@ -8,6 +8,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gocql/gocql v0.0.0-20200228163523-cd4b606dd2fb
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/jcxplorer/cwlogger v0.0.0-20170704082755-4e30a5a47e6a // indirect
 	github.com/kr/pretty v0.2.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.3.0

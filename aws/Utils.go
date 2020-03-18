@@ -13,12 +13,14 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/aws/aws-sdk-go/service/ssm"
+	"github.com/jcxplorer/cwlogger"
 	goutils "github.com/polyglotDataNerd/zib-Go-utils/utils"
 	"io"
 	"io/ioutil"
@@ -35,6 +37,11 @@ const (
 type S3Obj struct {
 	Bucket string
 	Key    string
+}
+
+type CloudWatch struct {
+	LogGroup  string
+	Retention int
 }
 
 /*dynamo db table struct*/
@@ -438,4 +445,17 @@ func (mapper DDBT) DDBScanGetItems(tableName string, key string, attribute strin
 		baseMap[mapper.HashKey] = mapper.Attribute
 	}
 	return baseMap
+}
+
+func (c *CloudWatch) CloudWatchPut() *cwlogger.Logger {
+	sess := SessionGenerator("default", "us-west-2")
+	logger, err := cwlogger.New(&cwlogger.Config{
+		Client:       cloudwatchlogs.New(sess),
+		LogGroupName: c.LogGroup,
+		Retention:    c.Retention,
+	})
+	if err != nil {
+		fmt.Errorf("%v", err)
+	}
+	return logger
 }
