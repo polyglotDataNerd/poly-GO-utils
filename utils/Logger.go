@@ -8,47 +8,50 @@ import (
 	"os"
 )
 
-var (
-	Trace   *log.Logger
-	Info    *log.Logger
-	Warning *log.Logger
-	Error   *log.Logger
-)
+type loggers struct {
+	Trace     *log.Logger
+	Info      *log.Logger
+	Warning   *log.Logger
+	Error     *log.Logger
+	buff      bytes.Buffer
+	outLogger *log.Logger
+}
 
 // https://www.ardanlabs.com/blog/2013/11/using-log-package-in-go.html
-func Init(traceHandle io.Writer,
+func (l *loggers) Init(traceHandle io.Writer,
 	infoHandle io.Writer,
 	warningHandle io.Writer,
 	errorHandle io.Writer,
 	buff bytes.Buffer) {
 
 	flag.Parse()
-	Trace = log.New(traceHandle,
+	l.Trace = log.New(traceHandle,
 		"TRACE: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
 	traceHandle.Write(buff.Bytes())
 
-	Info = log.New(infoHandle,
+	l.Info = log.New(infoHandle,
 		"INFO: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
 	infoHandle.Write(buff.Bytes())
 
-	Warning = log.New(warningHandle,
+	l.Warning = log.New(warningHandle,
 		"WARNING: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
 	warningHandle.Write(buff.Bytes())
 
-	Error = log.New(errorHandle,
+	l.Error = log.New(errorHandle,
 		"ERROR: ",
 		log.Ldate|log.Ltime|log.LstdFlags|log.Lshortfile)
 	errorHandle.Write(buff.Bytes())
 }
 func init() {
-	var buff bytes.Buffer
+	l := loggers{}
 	file, err := os.OpenFile("/var/tmp/utils.log", os.O_TRUNC|os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		Error.Print(err)
+		l.Error.Print(err)
 	}
-	Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr, buff)
-	file.Write(buff.Bytes())
+	l.Init(os.Stdout, os.Stdout, os.Stdout, os.Stderr, l.buff)
+	l.outLogger.Printf("%s", l.buff.String())
+	file.Write(l.buff.Bytes())
 }
