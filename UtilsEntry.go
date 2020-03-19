@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	database "github.com/polyglotDataNerd/zib-Go-utils/database"
 	read "github.com/polyglotDataNerd/zib-Go-utils/reader"
 	scan "github.com/polyglotDataNerd/zib-Go-utils/scanner"
-	database "github.com/polyglotDataNerd/zib-Go-utils/database"
 	goutils "github.com/polyglotDataNerd/zib-Go-utils/utils"
 	"runtime"
 	"strings"
@@ -12,9 +12,25 @@ import (
 	"time"
 )
 
+
 func main() {
-	fmt.Println("Welcome to data infrastructure GOLang Utils")
-	cassandraRead()
+	//file, _ := ioutil.ReadFile("/var/tmp/utils.log")
+	//goutils.Info.Println("Welcome to data infrastructure GOLang Utils")
+	//client := aws.CloudWatch{
+	//	LogGroup:  "test",
+	//	Retention: 1,
+	//}
+	//cwlogger := client.CloudWatchPut()
+	//defer cwlogger.Close()
+	//goutils.Error.Println("Error Test")
+	//goutils.Warning.Println("Warning Test")
+	//goutils.Trace.Println("Trace Test")
+	//output := string(file)
+	//fmt.Println(output)
+	//cwlogger.Log(time.Now(), output)
+    //fmt.Println("done")
+
+	//cassandraRead()
 	//cassandra()
 	//channels()
 	//
