@@ -53,7 +53,7 @@ func main() {
 	//
 	///*tests directory get*/
 	//dataMap, _ := aws.S3Obj{
-	//	Bucket: "sweetgreen-bigdata-application",
+	//	Bucket: "bigdata-application",
 	//	Key:    "platform/raw/web/2019-08-25",
 	//}.S3ReadObjDir(sess)
 	//for k, v := range dataMap {
@@ -110,7 +110,7 @@ func channels() {
 	start := time.Now()
 
 	/* producer */
-	go scan.ProcessDir(chLine, "sweetgreen-bigdata-unloads", "cassandra/2020-01-27/ml_service_008.gz")
+	go scan.ProcessDir(chLine, "bigdata-unloads", "cassandra/2020-01-27/ml_service_008.gz")
 	/* consumer */
 	go read.ReadObj(chLine, chOut)
 
@@ -148,7 +148,7 @@ func cassandra() {
 		CQLProps:    clientConfig,
 		ChannelLine: chLine,
 		ChannelOut:  chOut,
-		S3Bucket:    "sweetgreen-bigdata-unloads",
+		S3Bucket:    "bigdata-unloads",
 		S3key:       "cassandra/2020-02-16/",
 		Wg:          wg,
 		SSLPath:     "/Users/gerardbartolome/.mac-ca-roots",
