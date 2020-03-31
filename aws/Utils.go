@@ -292,8 +292,13 @@ func (obj S3Obj) S3UploadGzip(reader io.Reader, sess *session.Session) {
 	/*creates gzip file*/
 	buf := bytes.NewBuffer(nil)
 	gz := gzip.NewWriter(buf)
-	defer gz.Close()
 	if _, gzerr := gz.Write(payload); gzerr != nil {
+		goutils.Info.Panic("object malformed", gzerr.Error())
+	}
+	if gzerr := gz.Flush(); gzerr != nil {
+		goutils.Info.Panic("object malformed", gzerr.Error())
+	}
+	if gzerr := gz.Close(); gzerr != nil {
 		goutils.Info.Panic("object malformed", gzerr.Error())
 	}
 	/*creates client and then does a put*/
