@@ -290,18 +290,22 @@ func (obj S3Obj) S3WriteGzipReader(reader io.Reader, sess *session.Session) {
 		goutils.Info.Panic("object malformed", byteerr.Error())
 	}
 	/*put original object in byte buffer*/
-	buff := bytes.NewBuffer(nil)
+	var b bytes.Buffer
 	/*create new gzip writer*/
-	gz := gzip.NewWriter(buff)
-	defer gz.Flush()
-	defer gz.Close()
+	gz := gzip.NewWriter(&b)
 
 	/*converts string to bytes to write into gzip*/
 	if _, byteerr := gz.Write(payload); byteerr != nil {
 		goutils.Info.Panic("object malformed", byteerr.Error())
 	}
+	if byteerr := gz.Flush(); byteerr != nil {
+		goutils.Info.Panic("object malformed", byteerr.Error())
+	}
+	if byteerr := gz.Close(); byteerr != nil {
+		goutils.Info.Panic("object malformed", byteerr.Error())
+	}
 	input := &s3.PutObjectInput{
-		Body:                 bytes.NewReader(buff.Bytes()),
+		Body:                 bytes.NewReader(b.Bytes()),
 		Bucket:               aws.String(obj.Bucket),
 		Key:                  aws.String(obj.Key),
 		ServerSideEncryption: aws.String("AES256"),
