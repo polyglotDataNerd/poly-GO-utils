@@ -247,6 +247,7 @@ func (obj S3Obj) S3ReadObjDir(sess *session.Session) (map[string]string, error) 
 	return objectMap, nil
 }
 
+/* string implementation */
 func (obj S3Obj) S3WriteGzip(builder string, sess *session.Session) {
 	s3cli := s3.New(sess)
 
@@ -280,9 +281,9 @@ func (obj S3Obj) S3WriteGzip(builder string, sess *session.Session) {
 
 }
 
-func (obj S3Obj) S3UploadGzip(builder string, sess *session.Session) {
+/* reader implementation */
+func (obj S3Obj) S3UploadGzip(reader io.Reader, sess *session.Session) {
 	/*reads payload*/
-	reader := strings.NewReader(builder)
 	payload, byteerr := ioutil.ReadAll(reader)
 	if byteerr != nil {
 		goutils.Info.Panic("object malformed", byteerr.Error())
@@ -291,13 +292,9 @@ func (obj S3Obj) S3UploadGzip(builder string, sess *session.Session) {
 	/*creates gzip file*/
 	buf := bytes.NewBuffer(nil)
 	gz := gzip.NewWriter(buf)
+	defer gz.Close()
+	defer gz.Flush()
 	if _, gzerr := gz.Write(payload); gzerr != nil {
-		goutils.Info.Panic("object malformed", gzerr.Error())
-	}
-	if gzerr := gz.Flush(); gzerr != nil {
-		goutils.Info.Panic("object malformed", gzerr.Error())
-	}
-	if gzerr := gz.Close(); gzerr != nil {
 		goutils.Info.Panic("object malformed", gzerr.Error())
 	}
 	/*creates client and then does a put*/
