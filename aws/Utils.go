@@ -301,7 +301,7 @@ func (obj S3Obj) S3WriteGzipReader(reader io.Reader, sess *session.Session) {
 		goutils.Info.Panic("object malformed", byteerr.Error())
 	}
 	input := &s3.PutObjectInput{
-		Body:                 bytes.NewReader(b.Bytes()),
+		Body:                 bytes.NewReader(buff.Bytes()),
 		Bucket:               aws.String(obj.Bucket),
 		Key:                  aws.String(obj.Key),
 		ServerSideEncryption: aws.String("AES256"),
