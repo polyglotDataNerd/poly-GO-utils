@@ -293,17 +293,18 @@ func (obj S3Obj) S3WriteGzipReader(reader io.Reader, sess *session.Session) {
 	var b bytes.Buffer
 	/*create new gzip writer*/
 	gz := gzip.NewWriter(&b)
+	defer gz.Close()
 
 	/*converts string to bytes to write into gzip*/
 	if _, byteerr := gz.Write(payload); byteerr != nil {
 		goutils.Info.Panic("object malformed", byteerr.Error())
 	}
-	if byteerr := gz.Flush(); byteerr != nil {
-		goutils.Info.Panic("object malformed", byteerr.Error())
-	}
-	if byteerr := gz.Close(); byteerr != nil {
-		goutils.Info.Panic("object malformed", byteerr.Error())
-	}
+	//if byteerr := gz.Flush(); byteerr != nil {
+	//	goutils.Info.Panic("object malformed", byteerr.Error())
+	//}
+	//if byteerr := gz.Close(); byteerr != nil {
+	//	goutils.Info.Panic("object malformed", byteerr.Error())
+	//}
 	input := &s3.PutObjectInput{
 		Body:                 bytes.NewReader(b.Bytes()),
 		Bucket:               aws.String(obj.Bucket),
@@ -326,10 +327,11 @@ func (obj S3Obj) S3UploadGzip(reader io.Reader, sess *session.Session) {
 	if byteerr != nil {
 		goutils.Info.Panic("object malformed", byteerr.Error())
 	}
+	/*put original object in byte buffer*/
+	var b bytes.Buffer
+	/*create new gzip writer*/
+	gz := gzip.NewWriter(&b)
 
-	/*creates gzip file*/
-	buf := bytes.NewBuffer(nil)
-	gz := gzip.NewWriter(buf)
 	if _, gzerr := gz.Write(payload); gzerr != nil {
 		goutils.Info.Panic("object malformed", gzerr.Error())
 	}
