@@ -347,7 +347,7 @@ func (obj S3Obj) S3UploadGzip(reader io.Reader, sess *session.Session) {
 		Bucket:               aws.String(obj.Bucket),
 		Key:                  aws.String(obj.Key),
 		ServerSideEncryption: aws.String("AES256"),
-		Body:                 bytes.NewReader(buf.Bytes()),
+		Body:                 bytes.NewReader(b.Bytes()),
 	})
 
 	if err != nil {
