@@ -107,7 +107,7 @@ func (t *CQL) CassReadOrderHistory(queryString string, session *c.Session) ([]Or
 func (t *CQL) CassS3Write(insertStatment string, fields []string, session *c.Session) {
 	start := time.Now()
 	/* producer */
-	go scanner.ProcessDir(t.ChannelLine, t.S3Bucket, t.S3key)
+	go scanner.ProcessDir(t.ChannelLine, t.S3Bucket, t.S3key, "gzip")
 	/* consumer */
 	go read.ReadObj(t.ChannelLine, t.ChannelOut)
 

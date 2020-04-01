@@ -110,7 +110,7 @@ func channels() {
 	start := time.Now()
 
 	/* producer */
-	go scan.ProcessDir(chLine, "bigdata-unloads", "cassandra/2020-01-27/ml_service_008.gz")
+	go scan.ProcessDir(chLine, "bigdata-unloads", "cassandra/2020-01-27/ml_service_008.gz", "gzip")
 	/* consumer */
 	go read.ReadObj(chLine, chOut)
 
