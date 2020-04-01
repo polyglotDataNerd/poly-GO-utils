@@ -278,42 +278,6 @@ func (obj S3Obj) S3WriteGzip(builder string, sess *session.Session) {
 
 }
 
-/* string reader implementation */
-func (obj S3Obj) S3WriteGzipReader(reader io.Reader, sess *session.Session) {
-	s3cli := s3.New(sess)
-	/*reads payload*/
-	payload, byteerr := ioutil.ReadAll(reader)
-	if byteerr != nil {
-		goutils.Info.Panic("object malformed", byteerr.Error())
-	}
-	/*put original object in byte buffer*/
-	var b bytes.Buffer
-	/*create new gzip writer*/
-	gz := gzip.NewWriter(&b)
-	defer gz.Close()
-
-	/*converts string to bytes to write into gzip*/
-	if _, byteerr := gz.Write(payload); byteerr != nil {
-		goutils.Info.Panic("object malformed", byteerr.Error())
-	}
-	if byteerr := gz.Close(); byteerr != nil {
-		goutils.Info.Panic("object malformed", byteerr.Error())
-	}
-	input := &s3.PutObjectInput{
-		Body:                 bytes.NewReader(b.Bytes()),
-		Bucket:               aws.String(obj.Bucket),
-		Key:                  aws.String(obj.Key),
-		ServerSideEncryption: aws.String("AES256"),
-		StorageClass:         aws.String("STANDARD"),
-	}
-	result, err := s3cli.PutObject(input)
-	if err != nil {
-		goutils.Error.Fatalln(err)
-	}
-	goutils.Info.Println(result)
-
-}
-
 /* reader implementation */
 func (obj S3Obj) S3UploadGzip(reader io.Reader, sess *session.Session) {
 	/*reads payload*/
