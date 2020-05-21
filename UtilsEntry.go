@@ -12,7 +12,6 @@ import (
 	"time"
 )
 
-
 func main() {
 	//file, _ := ioutil.ReadFile("/var/tmp/utils.log")
 	//goutils.Info.Println("Welcome to data infrastructure GOLang Utils")
@@ -28,11 +27,11 @@ func main() {
 	//output := string(file)
 	//fmt.Println(output)
 	//cwlogger.Log(time.Now(), output)
-    //fmt.Println("done")
+	//fmt.Println("done")
 
 	//cassandraRead()
 	//cassandra()
-	//channels()
+	channels()
 	//
 	///*Examples for UTILS package*/
 	//config := p.MustLoadFile("config.properties", p.UTF8)
@@ -107,21 +106,22 @@ func channels() {
 	goutils.Info.Println(runtime.NumCPU())
 	chLine := make(chan string)
 	chOut := make(chan string)
-	//chExit := make(chan int)
 	start := time.Now()
 
 	/* producer */
-	go scan.ProcessDir(chLine, "poly-testing", "covid/jhu/raw/05-19-2020.csv", "flat")
+	go scan.ProcessDir(chLine, "poly-testing", "covid/jhu/raw/05-20-2020.csv", "flat")
 	/* consumer */
 	go read.ReadObj(chLine, chOut)
-
-	//go read.ReadSelect(chLine, chOut, chExit)
-	//time.Sleep(5 * time.Second)
-	//chExit <- 0
-
 	for l := range chOut {
 		goutils.Info.Println(l)
 	}
+
+	/* consumer 2 */
+	//chExit := make(chan int)
+	//go read.ReadSelect(chLine, chOut, chExit)
+	//time.Sleep(700 * time.Millisecond)
+	//chExit <- 0
+
 
 
 	fmt.Println("Runtime took ", time.Since(start))

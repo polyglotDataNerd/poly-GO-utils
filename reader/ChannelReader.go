@@ -23,8 +23,9 @@ func ReadSelect(sender chan string, receiver chan string, status chan int) {
 		case receiver <- l:
 		case <-status:
 			ok = false
+			return
 		default:
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(500 * time.Nanosecond)
 		}
 	}
 
