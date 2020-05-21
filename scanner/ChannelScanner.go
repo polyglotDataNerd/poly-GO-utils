@@ -6,6 +6,7 @@ import (
 	aws "github.com/polyglotDataNerd/zib-Go-utils/aws"
 	utils "github.com/polyglotDataNerd/zib-Go-utils/utils"
 	"strings"
+	"sync"
 )
 
 func ProcessObj(line chan string, bucket string, key string) {
@@ -36,7 +37,7 @@ func ProcessObj(line chan string, bucket string, key string) {
 */
 
 func ProcessDir(line chan string, bucket string, key string, format string) {
-	//var wg sync.WaitGroup
+	var wg sync.WaitGroup
 	var source = make(map[string]string)
 	defer close(line)
 	object := aws.S3Obj{
@@ -64,24 +65,24 @@ func ProcessDir(line chan string, bucket string, key string, format string) {
 		utils.Info.Println("key:", k)
 		scan := bufio.NewScanner(strings.NewReader(v))
 		scan.Split(bufio.ScanLines)
-		for scan.Scan() {
-			l := scan.Text()
-			if len(l) > 0 {
-				line <- strings.ReplaceAll(l, "\n", "\t")
-			}
-		}
 		//for scan.Scan() {
-		//	wg.Add(1)
-		//	time.Sleep(500 * time.Nanosecond)
-		//	go func() {
-		//		defer wg.Done()
-		//		l := scan.Text()
-		//		if len(l) > 0 {
-		//			line <- strings.ReplaceAll(l, "\n", "\t")
-		//		}
-		//	}()
+		//	l := scan.Text()
+		//	if len(l) > 0 {
+		//		line <- strings.ReplaceAll(l, "\n", "\t")
+		//	}
 		//}
-		//wg.Wait()
+		/*https://github.com/golang/go/wiki/CommonMistakes#using-goroutines-on-loop-iterator-variables*/
+		for scan.Scan() {
+			wg.Add(1)
+			l := scan.Text()
+			go func(a string) {
+				defer wg.Done()
+				if len(l) > 0 {
+					line <- strings.ReplaceAll(l, "\n", "\t")
+				}
+			}(l)
+		}
+		wg.Wait()
 	}
 	utils.Info.Println("sent all lines")
 }

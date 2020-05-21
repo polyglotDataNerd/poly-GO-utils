@@ -109,7 +109,7 @@ func channels() {
 	start := time.Now()
 
 	/* producer */
-	go scan.ProcessDir(chLine, "poly-testing", "covid/jhu/raw/05-20-2020.csv", "flat")
+	go scan.ProcessDir(chLine, "poly-testing", "covid/jhu/raw/", "flat")
 	/* consumer */
 	go read.ReadObj(chLine, chOut)
 	for l := range chOut {

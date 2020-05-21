@@ -268,7 +268,7 @@ func (obj S3Obj) S3WriteGzip(builder string, sess *session.Session) {
 		Bucket:               aws.String(obj.Bucket),
 		Key:                  aws.String(obj.Key),
 		ServerSideEncryption: aws.String("AES256"),
-		StorageClass:         aws.String("STANDARD_IA"),
+		StorageClass:         aws.String("STANDARD"),
 	}
 	result, err := s3cli.PutObject(input)
 	if err != nil {
