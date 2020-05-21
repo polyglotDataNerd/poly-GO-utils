@@ -41,13 +41,13 @@ func ProcessDir(line chan string, bucket string, key string, format string) {
 	var source = make(map[string]string)
 	defer close(line)
 	object := aws.S3Obj{
-		Bucket:bucket,
-		Key:   key,
+		Bucket: bucket,
+		Key:    key,
 	}
 
 	if format == "gzip" {
 		/* close on the sender (producer) and NOT the receiver (consumer) */
-		obj , objerr := object.S3ReadObjGZIPDir(aws.SessionGenerator("default", "us-west-2"))
+		obj, objerr := object.S3ReadObjGZIPDir(aws.SessionGenerator("default", "us-west-2"))
 		source = obj
 		if objerr != nil {
 			utils.Error.Fatalln(objerr.Error())
@@ -55,7 +55,7 @@ func ProcessDir(line chan string, bucket string, key string, format string) {
 	}
 	if format == "flat" {
 		/* close on the sender (producer) and NOT the receiver (consumer) */
-		obj , objerr := object.S3ReadObjDir(aws.SessionGenerator("default", "us-west-2"))
+		obj, objerr := object.S3ReadObjDir(aws.SessionGenerator("default", "us-west-2"))
 		source = obj
 		if objerr != nil {
 			utils.Error.Fatalln(objerr.Error())
@@ -69,10 +69,19 @@ func ProcessDir(line chan string, bucket string, key string, format string) {
 			defer wg.Done()
 			scan := bufio.NewScanner(strings.NewReader(v))
 			scan.Split(bufio.ScanLines)
+			var tasksWG sync.WaitGroup
 			for scan.Scan() {
-				l := scan.Text()
-				line <- l
+				tasksWG.Add(1)
+				go func() {
+					defer tasksWG.Done()
+					l := scan.Text()
+					if len(l) > 0 {
+						line <- strings.ReplaceAll(l, "\n", "\t")
+					}
+				}()
+
 			}
+			tasksWG.Wait()
 		}()
 	}
 
