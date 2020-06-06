@@ -21,7 +21,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/aws/aws-sdk-go/service/ssm"
 	"github.com/jcxplorer/cwlogger"
-	goutils "github.com/polyglotDataNerd/zib-Go-utils/utils"
+	goutils "github.com/polyglotDataNerd/poly-Go-utils/utils"
 	"io"
 	"io/ioutil"
 	"os"

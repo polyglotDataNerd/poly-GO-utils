@@ -1,7 +1,7 @@
 package reader
 
 import (
-	log "github.com/polyglotDataNerd/zib-Go-utils/utils"
+	log "github.com/polyglotDataNerd/poly-Go-utils/utils"
 	"time"
 )
 func ReadObj(line chan string, read chan string) {

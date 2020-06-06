@@ -4,10 +4,10 @@ package database
 
 import (
 	c "github.com/gocql/gocql"
-	read "github.com/polyglotDataNerd/zib-Go-utils/reader"
-	"github.com/polyglotDataNerd/zib-Go-utils/scanner"
-	aws "github.com/polyglotDataNerd/zib-Go-utils/aws"
-	utils "github.com/polyglotDataNerd/zib-Go-utils/utils"
+	read "github.com/polyglotDataNerd/poly-Go-utils/reader"
+	"github.com/polyglotDataNerd/poly-Go-utils/scanner"
+	aws "github.com/polyglotDataNerd/poly-Go-utils/aws"
+	utils "github.com/polyglotDataNerd/poly-Go-utils/utils"
 	"strings"
 	"sync"
 	"time"
