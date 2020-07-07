@@ -9,18 +9,33 @@ import (
 	"sync"
 )
 
-func ProcessObj(line chan string, bucket string, key string) {
+func ProcessObj(line chan string, bucket string, key string, format string) {
 	/* close on the sender (producer) and NOT the receiver (consumer) */
 	defer close(line)
-	obj, objerr := aws.S3Obj{
-		bucket,
-		key}.S3ReadObjGzip(aws.SessionGenerator("default", "us-west-2"))
-
-	if objerr != nil {
-		utils.Error.Fatalln(objerr.Error())
+	var input string
+	object := aws.S3Obj{
+		Bucket: bucket,
+		Key:    key,
 	}
 
-	scan := bufio.NewScanner(strings.NewReader(obj))
+	if format == "gzip" {
+		/* close on the sender (producer) and NOT the receiver (consumer) */
+		obj, objerr := object.S3ReadObjGzip(aws.SessionGenerator("default", "us-west-2"))
+		input = obj
+		if objerr != nil {
+			utils.Error.Fatalln(objerr.Error())
+		}
+	}
+	if format == "flat" {
+		/* close on the sender (producer) and NOT the receiver (consumer) */
+		obj, objerr := object.S3ReadObj(aws.SessionGenerator("default", "us-west-2"))
+		input = obj
+		if objerr != nil {
+			utils.Error.Fatalln(objerr.Error())
+		}
+	}
+
+	scan := bufio.NewScanner(strings.NewReader(input))
 	scan.Split(bufio.ScanLines)
 	for scan.Scan() {
 		line <- scan.Text()
