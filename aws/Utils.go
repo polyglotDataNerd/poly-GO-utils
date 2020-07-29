@@ -271,8 +271,8 @@ func (obj S3Obj) S3WriteGzip(builder string, sess *session.Session) {
 		StorageClass:         aws.String("STANDARD"),
 	}
 	/* object level tagging */
-	input.SetTagging("BucketName=" + obj.Bucket)
-	input.SetTagging("KeyName=" + obj.Key)
+	input.SetTagging(fmt.Sprintf("%s%s%s%s%s%s%s", "\"", "Bucket=", obj.Bucket, ",", "Key=", obj.Key, "\""))
+	//input.SetTagging("KeyName=" + obj.Key)
 
 	result, err := s3cli.PutObject(input)
 	if err != nil {
