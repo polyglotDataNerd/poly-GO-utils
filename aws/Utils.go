@@ -124,7 +124,7 @@ func (obj S3Obj) S3ReadObj(sess *session.Session) (string, error) {
 	getObject, err := s3cli.GetObject(
 		&s3.GetObjectInput{
 			Bucket: aws.String(obj.Bucket),
-			Key:    aws.String(obj.Key),})
+			Key:    aws.String(obj.Key)})
 
 	if err != nil {
 		goutils.Error.Fatalln("no s3 Object")
@@ -147,7 +147,7 @@ func (obj S3Obj) S3ReadObjGzip(sess *session.Session) (string, error) {
 	getObject, err := s3cli.GetObject(
 		&s3.GetObjectInput{
 			Bucket: aws.String(obj.Bucket),
-			Key:    aws.String(obj.Key),})
+			Key:    aws.String(obj.Key)})
 
 	if err != nil {
 		goutils.Error.Fatalln(err.Error())
@@ -189,7 +189,7 @@ func (obj S3Obj) S3ReadObjGZIPDir(sess *session.Session) (map[string]string, err
 		getObject, err := s3cli.GetObject(
 			&s3.GetObjectInput{
 				Bucket: aws.String(obj.Bucket),
-				Key:    aws.String(*item.Key),})
+				Key:    aws.String(*item.Key)})
 
 		if err != nil {
 			goutils.Error.Fatalln("no s3 Object", err)
@@ -230,7 +230,7 @@ func (obj S3Obj) S3ReadObjDir(sess *session.Session) (map[string]string, error) 
 		getObject, err := s3cli.GetObject(
 			&s3.GetObjectInput{
 				Bucket: aws.String(obj.Bucket),
-				Key:    aws.String(*item.Key),})
+				Key:    aws.String(*item.Key)})
 
 		if err != nil {
 			goutils.Error.Fatalln("no s3 Object", err)
@@ -250,11 +250,11 @@ func (obj S3Obj) S3ReadObjDir(sess *session.Session) (map[string]string, error) 
 /* string implementation */
 func (obj S3Obj) S3WriteGzip(builder string, sess *session.Session) {
 	s3cli := s3.New(sess)
-
 	/*put original object in byte buffer*/
 	var b bytes.Buffer
 	/*create new gzip writer*/
 	gz := gzip.NewWriter(&b)
+	defer gz.Close()
 	/*converts string to bytes to write into gzip*/
 	if _, byteerr := gz.Write([]byte(builder)); byteerr != nil {
 		goutils.Info.Panic("object malformed", byteerr.Error())
@@ -270,6 +270,10 @@ func (obj S3Obj) S3WriteGzip(builder string, sess *session.Session) {
 		ServerSideEncryption: aws.String("AES256"),
 		StorageClass:         aws.String("STANDARD"),
 	}
+	/* object level tagging */
+	input.SetTagging("Bucket=" + obj.Bucket)
+	input.SetTagging("Key=" + obj.Key)
+
 	result, err := s3cli.PutObject(input)
 	if err != nil {
 		goutils.Error.Fatalln(err)
@@ -297,14 +301,16 @@ func (obj S3Obj) S3UploadGzip(reader io.Reader, sess *session.Session) {
 		goutils.Info.Panic("object malformed", gzerr.Error())
 	}
 	/*creates client and then does a put*/
-	s3cli := s3manager.NewUploader(sess)
-	_, err := s3cli.Upload(&s3manager.UploadInput{
-		Bucket:               aws.String(obj.Bucket),
-		Key:                  aws.String(obj.Key),
-		ServerSideEncryption: aws.String("AES256"),
-		Body:                 bytes.NewReader(b.Bytes()),
-	})
-
+	s3cli := s3manager.NewUploader(sess, func(f *s3manager.Uploader) { f.Concurrency = 10 }) //Concurrency does a parallel put of the multipart object
+	_, err := s3cli.Upload(
+		&s3manager.UploadInput{
+			Bucket:               aws.String(obj.Bucket),
+			Key:                  aws.String(obj.Key),
+			ServerSideEncryption: aws.String("AES256"),
+			Body:                 bytes.NewReader(b.Bytes()),
+			/* object level tagging */
+			Tagging: aws.String(fmt.Sprintf("%s%s%s%s%s%s%s", "`", "Bucket=", obj.Bucket, " ", "Key=", obj.Key, "`")),
+		})
 	if err != nil {
 		goutils.Error.Fatalln(err.Error())
 	}
