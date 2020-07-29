@@ -271,8 +271,8 @@ func (obj S3Obj) S3WriteGzip(builder string, sess *session.Session) {
 		StorageClass:         aws.String("STANDARD"),
 	}
 	/* object level tagging */
-	input.SetTagging("Bucket=" + obj.Bucket)
-	input.SetTagging("Key=" + obj.Key)
+	input.SetTagging("BucketName=" + obj.Bucket)
+	input.SetTagging("KeyName=" + obj.Key)
 
 	result, err := s3cli.PutObject(input)
 	if err != nil {
@@ -308,8 +308,9 @@ func (obj S3Obj) S3UploadGzip(reader io.Reader, sess *session.Session) {
 			Key:                  aws.String(obj.Key),
 			ServerSideEncryption: aws.String("AES256"),
 			Body:                 bytes.NewReader(b.Bytes()),
-			/* object level tagging */
+			/* object level tagging
 			Tagging: aws.String(fmt.Sprintf("%s%s%s%s%s%s%s", "\"", "Bucket=", obj.Bucket, ",", "Key=", obj.Key, "\"")),
+			*/
 		})
 	if err != nil {
 		goutils.Error.Fatalln(err.Error())
