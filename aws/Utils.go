@@ -26,6 +26,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
@@ -262,7 +263,6 @@ func (obj S3Obj) S3WriteGzip(builder string, sess *session.Session) {
 	if byteerr := gz.Close(); byteerr != nil {
 		goutils.Info.Panic("object malformed", byteerr.Error())
 	}
-
 	input := &s3.PutObjectInput{
 		Body:                 bytes.NewReader(b.Bytes()),
 		Bucket:               aws.String(obj.Bucket),
@@ -270,11 +270,18 @@ func (obj S3Obj) S3WriteGzip(builder string, sess *session.Session) {
 		ServerSideEncryption: aws.String("AES256"),
 		StorageClass:         aws.String("STANDARD"),
 	}
-	/* object level tagging */
-	input.SetTagging(fmt.Sprintf("%s%s%s%s%s%s%s", "\"", "Bucket=", obj.Bucket, ",", "Key=", obj.Key, "\""))
-	//input.SetTagging("KeyName=" + obj.Key)
-
 	result, err := s3cli.PutObject(input)
+
+	/* object level tagging */
+	var s3tag []*s3.Tag
+	s3tag = append(s3tag, &s3.Tag{Key: aws.String("Bucket"), Value: aws.String(obj.Bucket)})
+	s3tag = append(s3tag, &s3.Tag{Key: aws.String("Key"), Value: aws.String(obj.Key)})
+	tagging := s3.Tagging{TagSet: s3tag}
+	s3cli.PutObjectTagging(&s3.PutObjectTaggingInput{
+		Tagging: &tagging,
+		Bucket:  aws.String(obj.Bucket),
+		Key:     aws.String(obj.Key),
+	})
 	if err != nil {
 		goutils.Error.Fatalln(err)
 	}
@@ -284,6 +291,7 @@ func (obj S3Obj) S3WriteGzip(builder string, sess *session.Session) {
 
 /* reader implementation */
 func (obj S3Obj) S3UploadGzip(reader io.Reader, sess *session.Session) {
+	client := s3.New(sess)
 	/*reads payload*/
 	payload, byteerr := ioutil.ReadAll(reader)
 	if byteerr != nil {
@@ -301,20 +309,27 @@ func (obj S3Obj) S3UploadGzip(reader io.Reader, sess *session.Session) {
 		goutils.Info.Panic("object malformed", gzerr.Error())
 	}
 	/*creates client and then does a put*/
-	s3cli := s3manager.NewUploader(sess, func(f *s3manager.Uploader) { f.Concurrency = 10 }) //Concurrency does a parallel put of the multipart object
+	s3cli := s3manager.NewUploader(sess, func(f *s3manager.Uploader) { f.Concurrency = runtime.GOMAXPROCS(runtime.NumCPU()) }) //Concurrency does a parallel put of the multipart object
 	_, err := s3cli.Upload(
 		&s3manager.UploadInput{
 			Bucket:               aws.String(obj.Bucket),
 			Key:                  aws.String(obj.Key),
 			ServerSideEncryption: aws.String("AES256"),
 			Body:                 bytes.NewReader(b.Bytes()),
-			/* object level tagging
-			Tagging: aws.String(fmt.Sprintf("%s%s%s%s%s%s%s", "\"", "Bucket=", obj.Bucket, ",", "Key=", obj.Key, "\"")),
-			*/
 		})
 	if err != nil {
 		goutils.Error.Fatalln(err.Error())
 	}
+	/* object level tagging */
+	var s3tag []*s3.Tag
+	s3tag = append(s3tag, &s3.Tag{Key: aws.String("Bucket"), Value: aws.String(obj.Bucket)})
+	s3tag = append(s3tag, &s3.Tag{Key: aws.String("Key"), Value: aws.String(obj.Key)})
+	tagging := s3.Tagging{TagSet: s3tag}
+	client.PutObjectTagging(&s3.PutObjectTaggingInput{
+		Tagging: &tagging,
+		Bucket:  aws.String(obj.Bucket),
+		Key:     aws.String(obj.Key),
+	})
 }
 
 func SESEmail(emailTo string, emailFrom string, subject string, body string) {
