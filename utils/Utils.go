@@ -2,6 +2,7 @@ package utils
 
 import (
 	"os"
+	"reflect"
 )
 
 type Props interface {
@@ -14,12 +15,12 @@ type Props interface {
 }
 
 type Mutator struct {
-	SetterKeyEnv   string
-	SetterValueEnv string
+	SetterKeyEnv    string
+	SetterValueEnv  string
 	SetterKeyUser   string
 	SetterValueUser string
-	SetterKeyPW  string
-	SetterValuePW string
+	SetterKeyPW     string
+	SetterValuePW   string
 }
 
 func (m *Mutator) SetEnv() {
@@ -46,5 +47,17 @@ func (m *Mutator) GetPW() string {
 	return os.Getenv(m.SetterKeyPW)
 }
 
+func isNilMap(inMap map[string]interface{}) (response string) {
+	val := reflect.ValueOf(inMap)
 
-
+	if val.Kind() == reflect.Map {
+		for _, k := range val.MapKeys() {
+			v := val.MapIndex(k)
+			if reflect.ValueOf(v).IsNil() {
+				Error.Println("interface{} is null")
+				response = "no value"
+			}
+		}
+	}
+	return response
+}
