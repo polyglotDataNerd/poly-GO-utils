@@ -61,3 +61,11 @@ func IsNilMap(inMap map[string]interface{}) (response string) {
 	}
 	return response
 }
+
+func IsNilInterface(inInterface interface{}) (response string) {
+	if reflect.ValueOf(inInterface).IsNil() {
+		Error.Println("interface{} is null")
+		response = "no value"
+	}
+	return response
+}
