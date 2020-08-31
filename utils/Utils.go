@@ -47,7 +47,7 @@ func (m *Mutator) GetPW() string {
 	return os.Getenv(m.SetterKeyPW)
 }
 
-func isNilMap(inMap map[string]interface{}) (response string) {
+func IsNilMap(inMap map[string]interface{}) (response string) {
 	val := reflect.ValueOf(inMap)
 
 	if val.Kind() == reflect.Map {
