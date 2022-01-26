@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -56,23 +55,31 @@ type DDB interface {
 	DDBGetItem()
 }
 
+type Session interface {
+	SessionGenerator() *session.Session
+}
+
+type Settings struct {
+	AWSConfig *aws.Config
+}
+
 /*
 Variadic function parameters are like *kwargs in python that have flexible params:
 ags ...string
 */
-func SessionGenerator(args ...string) *session.Session {
+func (s *Settings) SessionGenerator(args ...string) *session.Session {
 	/*default profile to create session*/
-	if args == nil {
-		sess, _ := session.NewSession(&aws.Config{
-			Region: aws.String(s3_region)},
-		)
-		//checks if sessions passes valid creds
-		_, credError := sess.Config.Credentials.Get()
-		if credError != nil {
-			goutils.Error.Fatalln("session not valid", credError.Error())
-		}
-		return sess
-	}
+	//if &s.AWSConfig == nil {
+	//	sess := session.Must(session.NewSession(&aws.Config{
+	//		Region: aws.String(s3_region)},
+	//	))
+	//	//checks if sessions passes valid creds
+	//	_, credError := sess.Config.Credentials.Get()
+	//	if credError != nil {
+	//		goutils.Error.Fatalln("session not valid", credError.Error())
+	//	}
+	//	return sess
+	//}
 	/*
 			pass explicit profile and region name
 			 args[0] = profile name
@@ -81,7 +88,7 @@ func SessionGenerator(args ...string) *session.Session {
 	if len(args[0]) < 10 {
 		sess, _ := session.NewSessionWithOptions(
 			session.Options{
-				Config:  aws.Config{Region: aws.String(args[1])},
+				Config:  *s.AWSConfig,
 				Profile: args[0],
 			})
 		//checks if sessions passes valid creds
@@ -97,24 +104,26 @@ func SessionGenerator(args ...string) *session.Session {
 		     args[1] = secret key
 			 args[2] = region
 	*/
-	if len(args[0]) > 10 {
-		creds := credentials.NewStaticCredentials(args[0], args[1], "")
-		sess, _ := session.NewSession(&aws.Config{
-			Region:      aws.String(args[2]),
-			Credentials: creds,
-		},
-		)
-		//checks if sessions passes valid creds
-		_, credError := sess.Config.Credentials.Get()
-		if credError != nil {
-			goutils.Error.Fatalln("session not valid", credError.Error())
-		}
-		return sess
-	}
+	//if len(args[0]) > 10 {
+	//	creds := credentials.NewStaticCredentials(args[0], args[1], "")
+	//
+	//
+	//
+	//	sess, _ := session.NewSession(&aws.Config{
+	//		Region:      aws.String(args[2]),
+	//		Credentials: creds,
+	//	},
+	//	)
+	//	//checks if sessions passes valid creds
+	//	_, credError := sess.Config.Credentials.Get()
+	//	if credError != nil {
+	//		goutils.Error.Fatalln("session not valid", credError.Error())
+	//	}
+	//	return sess
+	//}
 
-	sess, _ := session.NewSession(&aws.Config{
-		Region: aws.String(s3_region)},
-	)
+	/*default*/
+	sess, _ := session.NewSession(s.AWSConfig)
 
 	return sess
 }
@@ -333,8 +342,8 @@ func (obj S3Obj) S3UploadGzip(reader io.Reader, sess *session.Session) {
 }
 
 func SESEmail(emailTo string, emailFrom string, subject string, body string) {
-	sess := SessionGenerator()
-	cli := ses.New(sess)
+	sess := Settings{}
+	cli := ses.New(sess.SessionGenerator())
 
 	input := &ses.SendEmailInput{
 		Destination: &ses.Destination{
@@ -385,8 +394,8 @@ func SESEmail(emailTo string, emailFrom string, subject string, body string) {
 
 func SSMParams(params string, index int) (output string) {
 	paramArray := strings.Split(params, ",")
-	sess := SessionGenerator()
-	cli := ssm.New(sess)
+	sess := Settings{}
+	cli := ssm.New(sess.SessionGenerator())
 
 	/*SSM pattern*/
 	paramInput := ssm.GetParametersInput{Names: aws.StringSlice(paramArray), WithDecryption: aws.Bool(true)}
@@ -402,8 +411,8 @@ func SSMParams(params string, index int) (output string) {
 func (mapper DDBT) DDBGetQuery(tableName string, index string, indexedProperty string) *map[string]string {
 	/*main MAP struct to pass to DynamoDB*/
 	baseMap := make(map[string]string)
-	sess := SessionGenerator()
-	cli := dynamodb.New(sess)
+	sess := Settings{}
+	cli := dynamodb.New(sess.SessionGenerator())
 
 	query := &dynamodb.QueryInput{
 		TableName: aws.String(tableName),
@@ -434,8 +443,8 @@ func (mapper DDBT) DDBGetQuery(tableName string, index string, indexedProperty s
 func (mapper DDBT) DDBScanGetItems(tableName string, key string, attribute string) map[string]string {
 	baseMap := make(map[string]string)
 	/*main abstract struct to pass to DynamoDB*/
-	sess := SessionGenerator()
-	cli := dynamodb.New(sess)
+	sess := Settings{}
+	cli := dynamodb.New(sess.SessionGenerator())
 
 	var query = &dynamodb.ScanInput{
 		TableName: aws.String(tableName),
@@ -466,9 +475,10 @@ func (mapper DDBT) DDBScanGetItems(tableName string, key string, attribute strin
 }
 
 func (c *CloudWatch) CloudWatchPut() *cwlogger.Logger {
-	sess := SessionGenerator("default", "us-west-2")
+	sess := Settings{}
+
 	logger, err := cwlogger.New(&cwlogger.Config{
-		Client:       cloudwatchlogs.New(sess),
+		Client:       cloudwatchlogs.New(sess.SessionGenerator("default", "us-west-2")),
 		LogGroupName: c.LogGroup,
 		Retention:    c.Retention,
 	})

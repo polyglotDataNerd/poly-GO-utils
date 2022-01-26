@@ -16,7 +16,7 @@ func main() {
 	//file, _ := ioutil.ReadFile("/var/tmp/utils.log")
 	//goutils.Info.Println("Welcome to data infrastructure GOLang Utils")
 	//client := aws.CloudWatch{
-	//	LogGroup:  "test",
+	//	LogGroup:  "helpers",
 	//	Retention: 1,
 	//}
 	//cwlogger := client.CloudWatchPut()
@@ -50,7 +50,7 @@ func main() {
 	//sess := aws.SessionGenerator("default", "us-west-2")
 	//println(sess.Config)
 	//
-	///*tests directory get*/
+	///*test directory get*/
 	//dataMap, _ := aws.S3Obj{
 	//	Bucket: "bigdata-application",
 	//	Key:    "platform/raw/web/2019-08-25",
