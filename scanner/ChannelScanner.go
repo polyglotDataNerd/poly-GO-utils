@@ -3,11 +3,14 @@ package scanner
 import (
 	"bufio"
 	"fmt"
+	a "github.com/aws/aws-sdk-go/aws"
 	aws "github.com/polyglotDataNerd/poly-Go-utils/aws"
 	utils "github.com/polyglotDataNerd/poly-Go-utils/utils"
 	"strings"
 	"sync"
 )
+
+var Settings = aws.Settings{AWSConfig: &a.Config{Region: a.String("us-west-2")}}
 
 func ProcessObj(line chan string, bucket string, key string, format string) {
 	/* close on the sender (producer) and NOT the receiver (consumer) */
@@ -20,7 +23,7 @@ func ProcessObj(line chan string, bucket string, key string, format string) {
 
 	if format == "gzip" {
 		/* close on the sender (producer) and NOT the receiver (consumer) */
-		obj, objerr := object.S3ReadObjGzip(aws.SessionGenerator("default", "us-west-2"))
+		obj, objerr := object.S3ReadObjGzip(Settings.SessionGenerator("default"))
 		input = obj
 		if objerr != nil {
 			utils.Error.Fatalln(objerr.Error())
@@ -28,7 +31,7 @@ func ProcessObj(line chan string, bucket string, key string, format string) {
 	}
 	if format == "flat" {
 		/* close on the sender (producer) and NOT the receiver (consumer) */
-		obj, objerr := object.S3ReadObj(aws.SessionGenerator("default", "us-west-2"))
+		obj, objerr := object.S3ReadObj(Settings.SessionGenerator("default"))
 		input = obj
 		if objerr != nil {
 			utils.Error.Fatalln(objerr.Error())
@@ -62,7 +65,7 @@ func ProcessDir(line chan string, bucket string, key string, format string) {
 
 	if format == "gzip" {
 		/* close on the sender (producer) and NOT the receiver (consumer) */
-		obj, objerr := object.S3ReadObjGZIPDir(aws.SessionGenerator("default", "us-west-2"))
+		obj, objerr := object.S3ReadObjGZIPDir(Settings.SessionGenerator("default"))
 		source = obj
 		if objerr != nil {
 			utils.Error.Fatalln(objerr.Error())
@@ -70,7 +73,7 @@ func ProcessDir(line chan string, bucket string, key string, format string) {
 	}
 	if format == "flat" {
 		/* close on the sender (producer) and NOT the receiver (consumer) */
-		obj, objerr := object.S3ReadObjDir(aws.SessionGenerator("default", "us-west-2"))
+		obj, objerr := object.S3ReadObjDir(Settings.SessionGenerator("default"))
 		source = obj
 		if objerr != nil {
 			utils.Error.Fatalln(objerr.Error())
