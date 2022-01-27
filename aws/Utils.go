@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -69,23 +70,21 @@ ags ...string
 */
 func (s *Settings) SessionGenerator(args ...string) *session.Session {
 	/*default profile to create session*/
-	//if &s.AWSConfig == nil {
-	//	sess := session.Must(session.NewSession(&aws.Config{
-	//		Region: aws.String(s3_region)},
-	//	))
-	//	//checks if sessions passes valid creds
-	//	_, credError := sess.Config.Credentials.Get()
-	//	if credError != nil {
-	//		goutils.Error.Fatalln("session not valid", credError.Error())
-	//	}
-	//	return sess
-	//}
+	if args == nil {
+		sess, _ := session.NewSession(s.AWSConfig)
+		//checks if sessions passes valid creds
+		_, credError := sess.Config.Credentials.Get()
+		if credError != nil {
+			goutils.Error.Fatalln("session not valid", credError.Error())
+		}
+		return sess
+	}
 	/*
 			pass explicit profile and region name
 			 args[0] = profile name
 		     args[1] = region
 	*/
-	if len(args[0]) < 10 {
+	if len(args[0]) < 20 {
 		sess, _ := session.NewSessionWithOptions(
 			session.Options{
 				Config:  *s.AWSConfig,
@@ -102,25 +101,21 @@ func (s *Settings) SessionGenerator(args ...string) *session.Session {
 			pass explicit access, secret key and region name
 			 args[0] = access key
 		     args[1] = secret key
-			 args[2] = region
 	*/
-	//if len(args[0]) > 10 {
-	//	creds := credentials.NewStaticCredentials(args[0], args[1], "")
-	//
-	//
-	//
-	//	sess, _ := session.NewSession(&aws.Config{
-	//		Region:      aws.String(args[2]),
-	//		Credentials: creds,
-	//	},
-	//	)
-	//	//checks if sessions passes valid creds
-	//	_, credError := sess.Config.Credentials.Get()
-	//	if credError != nil {
-	//		goutils.Error.Fatalln("session not valid", credError.Error())
-	//	}
-	//	return sess
-	//}
+	if len(args[0]) == 20 && len(args[1]) > 0 {
+		creds := credentials.NewStaticCredentials(args[0], args[1], "")
+
+		sess, _ := session.NewSession(&aws.Config{
+			Credentials: creds,
+		},
+		)
+		//checks if sessions passes valid creds
+		_, credError := sess.Config.Credentials.Get()
+		if credError != nil {
+			goutils.Error.Fatalln("session not valid", credError.Error())
+		}
+		return sess
+	}
 
 	/*default*/
 	sess, _ := session.NewSession(s.AWSConfig)
