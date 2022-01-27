@@ -3,15 +3,18 @@ package database
 //BASIC CRUD and CONNECTION FUNCTONS/METHODS FOR APACHE CASSANDRA
 
 import (
+	a "github.com/aws/aws-sdk-go/aws"
 	c "github.com/gocql/gocql"
+	aws "github.com/polyglotDataNerd/poly-Go-utils/aws"
 	read "github.com/polyglotDataNerd/poly-Go-utils/reader"
 	"github.com/polyglotDataNerd/poly-Go-utils/scanner"
-	aws "github.com/polyglotDataNerd/poly-Go-utils/aws"
 	utils "github.com/polyglotDataNerd/poly-Go-utils/utils"
 	"strings"
 	"sync"
 	"time"
 )
+
+var Settings = aws.Settings{AWSConfig: &a.Config{Region: a.String("us-west-2")}}
 
 type OrderHistoryTable struct {
 	Gid        string
@@ -95,7 +98,7 @@ func (t *CQL) CassReadOrderHistory(queryString string, session *c.Session) ([]Or
 				OrderDate:  result["order_date"].(time.Time),
 				OrderId:    result["order_id"].(string),
 				Entree:     result["entree"].(string),
-				CustomerID: result["customer_id"].(string),})
+				CustomerID: result["customer_id"].(string)})
 			result = map[string]interface{}{}
 		}
 	}()
@@ -139,7 +142,7 @@ func (t *CQL) CassCopy(copyStament string, fields []string, delimiter string, he
 	defer session.Close()
 	obj, objerr := aws.S3Obj{
 		t.S3Bucket,
-		t.S3key}.S3ReadObjGZIPDir(aws.SessionGenerator("default", "us-west-2"))
+		t.S3key}.S3ReadObjGZIPDir(Settings.SessionGenerator("default"))
 
 	if objerr != nil {
 		utils.Error.Fatalln(objerr.Error())
