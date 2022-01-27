@@ -10,7 +10,4 @@ func MockServer() *httptest.Server {
 		w.WriteHeader(http.StatusOK)
 	}))
 	return mock
-	//return &aws.Config{
-	//	DisableSSL: aws.Bool(true),
-	//	Endpoint:   aws.String(mock.URL)}
 }
