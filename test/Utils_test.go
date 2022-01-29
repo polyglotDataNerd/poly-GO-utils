@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/orlangure/gnomock"
 	utils "github.com/polyglotDataNerd/poly-Go-utils/aws"
 	"github.com/polyglotDataNerd/poly-Go-utils/helpers"
 	log "github.com/polyglotDataNerd/poly-Go-utils/utils"
@@ -96,7 +97,7 @@ func TestS3Service(t *testing.T) {
 	//
 	//log.Info.Println(*sess.AWSConfig.Endpoint)
 	//log.Info.Println(mockClient.ClientInfo)
-	cli := S3Mock()
+	cli, c := S3Mock()
 
 	//cli := s3.New(sess.SessionGenerator("testing"))
 	out, errC := cli.CreateBucket(&s3.CreateBucketInput{
@@ -129,4 +130,8 @@ func TestS3Service(t *testing.T) {
 		log.Error.Println(err)
 	}
 	log.Info.Println(string(buf.Bytes()))
+	cerr := gnomock.Stop(c)
+	if cerr != nil {
+		return
+	}
 }

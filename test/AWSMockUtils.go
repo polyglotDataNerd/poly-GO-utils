@@ -51,7 +51,7 @@ func MockClient(cfgs ...*aws.Config) *client.Client {
 	return svc
 }
 
-func S3Mock() *s3.S3 {
+func S3Mock() (*s3.S3, *gnomock.Container) {
 	///* gets fixture from testdata folder */
 	parentDir, _ := helpers.GetTestDir()
 	credPath := fmt.Sprintf("%s%s", parentDir, "/credentials")
@@ -64,9 +64,6 @@ func S3Mock() *s3.S3 {
 	)
 	log.Info.Println(p.Image())
 	c, err := gnomock.Start(p)
-	defer func() {
-		_ = gnomock.Stop(c)
-	}()
 
 	if err != nil {
 		log.Error.Panic(err)
@@ -85,6 +82,6 @@ func S3Mock() *s3.S3 {
 		log.Error.Panic(serr)
 	}
 
-	return s3.New(sess)
+	return s3.New(sess), c
 
 }
