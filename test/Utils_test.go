@@ -1,14 +1,17 @@
 package test
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	utils "github.com/polyglotDataNerd/poly-Go-utils/aws"
 	"github.com/polyglotDataNerd/poly-Go-utils/helpers"
 	log "github.com/polyglotDataNerd/poly-Go-utils/utils"
 	"github.com/stretchr/testify/assert"
+	"io"
 	"testing"
 )
 
@@ -74,4 +77,56 @@ func TestSessionGenerator(t *testing.T) {
 		}
 
 	}
+}
+
+func TestS3Service(t *testing.T) {
+	///* gets fixture from testdata folder */
+	//parentDir, _ := helpers.GetTestDir()
+	//credPath := fmt.Sprintf("%s%s", parentDir, "/credentials")
+	//
+	///* helper to mock AWS client */
+	//mockServer := MockServer()
+	//mockClient := MockClient()
+	//sess := utils.Settings{AWSConfig: &aws.Config{
+	//	Endpoint: aws.String(mockServer.URL),
+	//	Region:   aws.String("us-east-1"),
+	//	/* name of test profile */
+	//	Credentials: credentials.NewSharedCredentials(credPath, "testing"),
+	//}}
+	//
+	//log.Info.Println(*sess.AWSConfig.Endpoint)
+	//log.Info.Println(mockClient.ClientInfo)
+	cli := S3Mock()
+
+	//cli := s3.New(sess.SessionGenerator("testing"))
+	out, errC := cli.CreateBucket(&s3.CreateBucketInput{
+		Bucket: aws.String("poly-test")})
+	log.Info.Println(out.GoString())
+	if errC != nil {
+		log.Error.Println(errC)
+	}
+
+	input := s3.PutObjectInput{
+		Body:                 bytes.NewReader([]byte("This is the test body")),
+		Bucket:               aws.String("poly-test"),
+		Key:                  aws.String("testing/test.csv"),
+		ServerSideEncryption: aws.String("AES256"),
+		StorageClass:         aws.String("STANDARD"),
+	}
+	result, err := cli.PutObject(&input)
+	if err != nil {
+		log.Error.Println(err)
+	}
+	log.Info.Println(result)
+	getObject, _ := cli.GetObject(
+		&s3.GetObjectInput{
+			Bucket: aws.String("poly-test"),
+			Key:    aws.String("testing/test.csv"),
+		})
+	defer getObject.Body.Close()
+	buf := bytes.NewBuffer(nil)
+	if _, err := io.Copy(buf, getObject.Body); err != nil {
+		log.Error.Println(err)
+	}
+	log.Info.Println(string(buf.Bytes()))
 }
