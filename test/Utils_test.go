@@ -133,13 +133,9 @@ func TestS3ReadObj(t *testing.T) {
 				log.Error.Println(err)
 			}
 			log.Info.Println(result)
-			s3Utils := utils.S3Obj{
-				Bucket: "poly-test",
-				Key:    "testing/test.csv",
-			}
 			s3Session := utils.Settings{AWSConfig: &cli.Config}
-			testText, _ := s3Utils.S3ReadObj(s3Session.SessionGenerator())
-			msg := fmt.Sprintf("S3ReadObj method validates ObjectContent behavior output passed, textbody: %s", testText)
+			testText, _ := tc.utils.S3ReadObj(s3Session.SessionGenerator())
+			msg := fmt.Sprintf("test number %d: S3ReadObj method validates ObjectContent behavior output passed, textbody: %s", tc.testNumber, testText)
 			log.Info.Println(msg)
 			assert.Equal(t, objectTextTest, testText, msg)
 		} else if tc.testNumber == 2 {
@@ -163,13 +159,9 @@ func TestS3ReadObj(t *testing.T) {
 				log.Error.Println(err)
 			}
 			log.Info.Println(result)
-			s3Utils := utils.S3Obj{
-				Bucket: "poly-test",
-				Key:    "testing/test.gzip",
-			}
 			s3Session := utils.Settings{AWSConfig: &cli.Config}
-			testText, _ := s3Utils.S3ReadObjGzip(s3Session.SessionGenerator())
-			msg := fmt.Sprintf("S3ReadObjGzip method validates ObjectContent behavior output passed, gzip body: %s", testText)
+			testText, _ := tc.utils.S3ReadObjGzip(s3Session.SessionGenerator())
+			msg := fmt.Sprintf("test number %d: S3ReadObjGzip method validates ObjectContent behavior output passed, gzip body: %s", tc.testNumber, testText)
 			log.Info.Println(msg)
 			assert.Equal(t, testGzipText, testText, msg)
 		}
