@@ -1,5 +1,7 @@
 package test
 
+//go test -c -o tests
+
 import (
 	"bytes"
 	"fmt"
@@ -12,6 +14,7 @@ import (
 	"github.com/polyglotDataNerd/poly-Go-utils/helpers"
 	log "github.com/polyglotDataNerd/poly-Go-utils/utils"
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
@@ -80,8 +83,12 @@ func TestSessionGenerator(t *testing.T) {
 }
 
 func TestS3ReadObj(t *testing.T) {
+	/* gets fixture from testdata folder */
+	parentDir, _ := helpers.GetTestDir()
+	fixturePath := fmt.Sprintf("%s%s", parentDir, "/s3/")
 	cli, c := S3Mock()
 	objectTextTest := "This is the test body"
+	testGzipText := "\"name\"\t\"level\"\t\"city\"\t\"county\"\t\"state\"\t\"country\"\t\"population\"\t\"Latitude\"\t\"Longitude\"\t\"aggregate\"\t\"timezone\"\t\"cases\"\t\"US_Confirmed_County\"\t\"deaths\"\t\"US_Deaths_County\"\t\"recovered\"\t\"US_Recovered_County\"\t\"active\"\t\"US_Active_County\"\t\"tested\"\t\"hospitalized\"\t\"discharged\"\t\"last_updated\"\t\"icu\"\t\"hospitalized_current\"\t\"icu_current\"\n\"\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"Zimbabwe\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"32952.0\"\t\"\"\t\"1178.0\"\t\"\"\t\"24872.0\"\t\"\"\t\"6902.0\"\t\"\"\t\"\"\t\"\"\t\"2021-01-30\"\t\"\"\t\"\"\t\"\"\n\"\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"Zimbabwe\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"605.0\"\t\"\"\t\"7.0\"\t\"\"\t\"166.0\"\t\"\"\t\"432.0\"\t\"\"\t\"\"\t\"\"\t\"2020-07-02\"\t\"\"\t\"\"\t\"\""
 	out, errC := cli.CreateBucket(&s3.CreateBucketInput{
 		Bucket: aws.String("poly-test")})
 	log.Info.Println(out.GoString())
@@ -89,27 +96,85 @@ func TestS3ReadObj(t *testing.T) {
 		log.Error.Println(errC)
 	}
 
-	input := s3.PutObjectInput{
-		Body:                 bytes.NewReader([]byte("This is the test body")),
-		Bucket:               aws.String("poly-test"),
-		Key:                  aws.String("testing/test.csv"),
-		ServerSideEncryption: aws.String("AES256"),
-		StorageClass:         aws.String("STANDARD"),
+	testcases := []struct {
+		utils      utils.S3Obj
+		descriptor string
+		testNumber int
+	}{
+		{
+			utils: utils.S3Obj{
+				Bucket: "poly-test",
+				Key:    "testing/test.csv",
+			},
+			descriptor: "test read object",
+			testNumber: 1,
+		},
+		{
+			utils: utils.S3Obj{
+				Bucket: "poly-test",
+				Key:    "testing/test.gzip",
+			},
+			descriptor: "test read object gzip from testdata dir",
+			testNumber: 2,
+		},
 	}
-	result, err := cli.PutObject(&input)
-	if err != nil {
-		log.Error.Println(err)
+
+	for _, tc := range testcases {
+		if tc.testNumber == 1 {
+			input := s3.PutObjectInput{
+				Body:                 bytes.NewReader([]byte("This is the test body")),
+				Bucket:               aws.String("poly-test"),
+				Key:                  aws.String("testing/test.csv"),
+				ServerSideEncryption: aws.String("AES256"),
+				StorageClass:         aws.String("STANDARD"),
+			}
+			result, err := cli.PutObject(&input)
+			if err != nil {
+				log.Error.Println(err)
+			}
+			log.Info.Println(result)
+			s3Utils := utils.S3Obj{
+				Bucket: "poly-test",
+				Key:    "testing/test.csv",
+			}
+			s3Session := utils.Settings{AWSConfig: &cli.Config}
+			testText, _ := s3Utils.S3ReadObj(s3Session.SessionGenerator())
+			msg := fmt.Sprintf("S3ReadObj method validates ObjectContent behavior output passed, textbody: %s", testText)
+			log.Info.Println(msg)
+			assert.Equal(t, objectTextTest, testText, msg)
+		} else if tc.testNumber == 2 {
+			upFile, errF := os.OpenFile(fmt.Sprintf("%s%s", fixturePath, "test.gzip"), os.O_RDWR, 0644)
+			if errF != nil {
+				log.Error.Panic(errF)
+			}
+			defer upFile.Close()
+			fileInfo, _ := upFile.Stat()
+			buffer := make([]byte, fileInfo.Size())
+			upFile.Read(buffer)
+			input := s3.PutObjectInput{
+				Body:                 bytes.NewReader(buffer),
+				Bucket:               aws.String("poly-test"),
+				Key:                  aws.String("testing/test.gzip"),
+				ServerSideEncryption: aws.String("AES256"),
+				StorageClass:         aws.String("STANDARD"),
+			}
+			result, err := cli.PutObject(&input)
+			if err != nil {
+				log.Error.Println(err)
+			}
+			log.Info.Println(result)
+			s3Utils := utils.S3Obj{
+				Bucket: "poly-test",
+				Key:    "testing/test.gzip",
+			}
+			s3Session := utils.Settings{AWSConfig: &cli.Config}
+			testText, _ := s3Utils.S3ReadObjGzip(s3Session.SessionGenerator())
+			msg := fmt.Sprintf("S3ReadObjGzip method validates ObjectContent behavior output passed, gzip body: %s", testText)
+			log.Info.Println(msg)
+			assert.Equal(t, testGzipText, testText, msg)
+		}
 	}
-	log.Info.Println(result)
-	s3Utils := utils.S3Obj{
-		Bucket: "poly-test",
-		Key:    "testing/test.csv",
-	}
-	s3Session := utils.Settings{AWSConfig: &cli.Config}
-	testText, _ := s3Utils.S3ReadObj(s3Session.SessionGenerator())
-	msg := fmt.Sprintf("S3ReadObj method validates ObjectContent behavior output passed, textbody: %s", testText)
-	log.Info.Println(msg)
-	assert.Equal(t, objectTextTest, testText, msg)
+
 	// explicit stop of localstack docker container
 	cerr := gnomock.Stop(c)
 	if cerr != nil {
