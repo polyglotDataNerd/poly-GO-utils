@@ -1,0 +1,55 @@
+version: '3.9'
+services:
+
+  app:
+    build:
+      context: .
+    volumes:
+      - ".:/app"
+    depends_on:
+      - localstack
+    networks:
+      - app_network
+
+  localstack:
+    image: localstack/localstack:latest
+    container_name: "${LOCALSTACK_DOCKER_NAME-localstack}"
+    hostname: localstack
+    ports:
+      #      - "4566:4566"
+      - '4566-4583:4566-4583'
+    networks:
+      - app_network
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+      - EDGE_PORT=4566
+      - SERVICES=lambda,s3
+      #      - DEBUG=${DEBUG-}
+      #      - DATA_DIR=${DATA_DIR-}
+      #      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR-}
+      #      - HOST_TMP_FOLDER=${TMPDIR:-/tmp/}localstack
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOSTNAME_EXTERNAL=localstack
+    #      - LOCALSTACK_HOSTNAME=localstack-main
+    volumes:
+      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ".:/app"
+    depends_on:
+      - localstack
+    networks:
+      - app_network
+    command:
+      - '/bin/sh'
+      - '-c'
+      - 'sh /app/runtest.sh'
+
+networks:
+  app_network:
+    driver: bridge
