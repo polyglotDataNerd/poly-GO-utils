@@ -31,13 +31,13 @@ spec:
         io.kompose.service: localstack
       name: localstack
     spec:
-      affinity: {{ .Values.affinity | toJson }}
+      affinity: { { .Values.affinity | toJson } }
       containers:
         - name: webserver
-          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          image: { { .Values.image.repository } }:{{ .Values.image.tag }}
           ports:
-            - name: webserver
-              containerPort: 80
+              - name: webserver
+                containerPort: 80
           resources:
             requests:
               memory: 5000Mi

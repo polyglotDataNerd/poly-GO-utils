@@ -1,0 +1,26 @@
+k create namespace localstack
+
+namespace=localstack
+
+# helm deployment
+helm upgrade --debug --install \ 
+localstack ./localstack -n localstack \
+--atomic --timeout 1m 
+
+#list all charts in namespace
+helm ls -n $namespace
+
+# get all localstack resources
+k get all -o wide -n $namespace
+
+# logs
+PODSRV=$(k get pod -l app=localstack-server -o jsonpath="{.items[0].metadata.name}" -n $namespace)
+k logs -f $PODSRV  -n $namespace
+
+# start service and prints the url
+minikube service localstack-service -n $namespace --url
+k get service localstack-service  -n $namespace --output='jsonpath="{.spec.ports[0].nodePort}"'
+
+# example commands
+aws --endpoint-url=http://127.0.0.1:57578 s3 ls
+aws --endpoint-url=http://127.0.0.1:57578 s3api create-bucket --bucket polytest --region us-east-1 

@@ -1,75 +1,20 @@
 apiVersion: v1
 kind: Service
 metadata:
+  name: {{ .Release.Name }}-service
   annotations:
     kompose.cmd: kompose -f docker-compose.localstack.yml convert -c
     kompose.version: 1.21.0 (992df58d8)
   creationTimestamp: null
   labels:
+    app: localstack
     io.kompose.service: localstack
-  name: localstack
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
-    - name: web
-      port: 80
-      targetPort: 80
     - name: "4566"
       port: 4566
       targetPort: 4566
-    - name: "4567"
-      port: 4567
-      targetPort: 4567
-    - name: "4568"
-      port: 4568
-      targetPort: 4568
-    - name: "4569"
-      port: 4569
-      targetPort: 4569
-    - name: "4570"
-      port: 4570
-      targetPort: 4570
-    - name: "4571"
-      port: 4571
-      targetPort: 4571
-    - name: "4572"
-      port: 4572
-      targetPort: 4572
-    - name: "4573"
-      port: 4573
-      targetPort: 4573
-    - name: "4574"
-      port: 4574
-      targetPort: 4574
-    - name: "4575"
-      port: 4575
-      targetPort: 4575
-    - name: "4576"
-      port: 4576
-      targetPort: 4576
-    - name: "4577"
-      port: 4577
-      targetPort: 4577
-    - name: "4578"
-      port: 4578
-      targetPort: 4578
-    - name: "4579"
-      port: 4579
-      targetPort: 4579
-    - name: "4580"
-      port: 4580
-      targetPort: 4580
-    - name: "4581"
-      port: 4581
-      targetPort: 4581
-    - name: "4582"
-      port: 4582
-      targetPort: 4582
-    - name: "4583"
-      port: 4583
-      targetPort: 4583
   selector:
+    app: localstack-server
     io.kompose.service: localstack
-
-status:
-  loadBalancer: { }
