@@ -9,7 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/orlangure/gnomock"
 	utils "github.com/polyglotDataNerd/poly-Go-utils/aws"
 	"github.com/polyglotDataNerd/poly-Go-utils/helpers"
 	log "github.com/polyglotDataNerd/poly-Go-utils/utils"
@@ -86,7 +85,7 @@ func TestS3ReadObj(t *testing.T) {
 	/* gets fixture from testdata folder */
 	parentDir, _ := helpers.GetTestDir()
 	fixturePath := fmt.Sprintf("%s%s", parentDir, "/s3/")
-	cli, c := S3Mock()
+	cli := S3MockDocker()
 	objectTextTest := "This is the test body"
 	testGzipText := "\"name\"\t\"level\"\t\"city\"\t\"county\"\t\"state\"\t\"country\"\t\"population\"\t\"Latitude\"\t\"Longitude\"\t\"aggregate\"\t\"timezone\"\t\"cases\"\t\"US_Confirmed_County\"\t\"deaths\"\t\"US_Deaths_County\"\t\"recovered\"\t\"US_Recovered_County\"\t\"active\"\t\"US_Active_County\"\t\"tested\"\t\"hospitalized\"\t\"discharged\"\t\"last_updated\"\t\"icu\"\t\"hospitalized_current\"\t\"icu_current\"\n\"\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"Zimbabwe\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"32952.0\"\t\"\"\t\"1178.0\"\t\"\"\t\"24872.0\"\t\"\"\t\"6902.0\"\t\"\"\t\"\"\t\"\"\t\"2021-01-30\"\t\"\"\t\"\"\t\"\"\n\"\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"Zimbabwe\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"\"\t\"605.0\"\t\"\"\t\"7.0\"\t\"\"\t\"166.0\"\t\"\"\t\"432.0\"\t\"\"\t\"\"\t\"\"\t\"2020-07-02\"\t\"\"\t\"\"\t\"\""
 	out, errC := cli.CreateBucket(&s3.CreateBucketInput{
@@ -165,11 +164,5 @@ func TestS3ReadObj(t *testing.T) {
 			log.Info.Println(msg)
 			assert.Equal(t, testGzipText, testText, msg)
 		}
-	}
-
-	// explicit stop of localstack docker container
-	cerr := gnomock.Stop(c)
-	if cerr != nil {
-		return
 	}
 }

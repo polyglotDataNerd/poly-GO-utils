@@ -115,10 +115,11 @@ RUN set -eux; \
 		; \
 	fi; \
 	\
+	export PATH="/usr/local/go/bin:$PATH"; \
 	go version
 
 ENV GOPATH /go
-ENV PATH $GOPATH/bin:$PATH
-RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
+ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+#RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 WORKDIR /app
 COPY . /app

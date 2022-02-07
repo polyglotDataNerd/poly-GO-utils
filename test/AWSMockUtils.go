@@ -85,3 +85,24 @@ func S3Mock() (*s3.S3, *gnomock.Container) {
 	return s3.New(sess), c
 
 }
+
+func S3MockDocker() *s3.S3 {
+	/* uses localstack container in docker compose, container needs to be up first for the hardcoded endpoint to be active */
+	/* gets fixture from testdata folder */
+	parentDir, _ := helpers.GetTestDir()
+	credPath := fmt.Sprintf("%s%s", parentDir, "/credentials")
+	conf := &aws.Config{
+		Region:           aws.String("us-east-1"),
+		Endpoint:         aws.String("http://localstack:4566"),
+		S3ForcePathStyle: aws.Bool(true),
+		Credentials:      credentials.NewSharedCredentials(credPath, "testing"),
+	}
+
+	sess, serr := session.NewSession(conf)
+	if serr != nil {
+		log.Error.Panic(serr)
+	}
+
+	return s3.New(sess)
+
+}

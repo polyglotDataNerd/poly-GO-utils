@@ -2,11 +2,14 @@
 GOCMD=go
 GOTEST=$(GOCMD) test
 
-
-gotest:
-	$(GOTEST) ./test -c -o tests
-	./tests
-	rm -r ./tests
-
 clean:
 	$(GOCMD) clean
+
+gocompose:
+	docker-compose up --build app
+
+gotestdocker:
+	docker-compose up --build test
+	docker-compose down localstack
+	docker-compose down test
+
