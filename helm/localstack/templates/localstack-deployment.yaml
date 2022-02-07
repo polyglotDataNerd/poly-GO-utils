@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    app: localstack
+    kompose.cmd: kompose -f docker-compose.localstack.yml convert -c
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: localstack
+  name: localstack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: localstack-server
+      io.kompose.service: localstack
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose -f docker-compose.localstack.yml convert -c
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: localstack
+    spec:
+      containers:
+      - env:
+        - name: AWS_DEFAULT_REGION
+          value: us-east-1
+        - name: DATA_DIR
+        - name: DEBUG
+        - name: DOCKER_HOST
+          value: unix:///var/run/docker.sock
+        - name: EDGE_PORT
+          value: "4566"
+        - name: HOSTNAME_EXTERNAL
+          value: localstack
+        - name: HOST_TMP_FOLDER
+          value: /var/folders/tz/g5fxnc915w7cznd4k672lnwh0000gp/T/localstack
+        - name: LAMBDA_EXECUTOR
+        - name: SERVICES
+        image: localstack/localstack
+        imagePullPolicy: ""
+        name: localstack
+        ports:
+        - containerPort: 4566
+        - containerPort: 4567
+        - containerPort: 4568
+        - containerPort: 4569
+        - containerPort: 4570
+        - containerPort: 4571
+        - containerPort: 4572
+        - containerPort: 4573
+        - containerPort: 4574
+        - containerPort: 4575
+        - containerPort: 4576
+        - containerPort: 4577
+        - containerPort: 4578
+        - containerPort: 4579
+        - containerPort: 4580
+        - containerPort: 4581
+        - containerPort: 4582
+        - containerPort: 4583
+        resources: {}
+        volumeMounts:
+        - mountPath: /tmp/localstack
+          name: localstack-claim0
+        - mountPath: /var/run/docker.sock
+          name: localstack-claim1
+      hostname: localstack
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+      - name: localstack-claim0
+        persistentVolumeClaim:
+          claimName: localstack-claim0
+      - name: localstack-claim1
+        persistentVolumeClaim:
+          claimName: localstack-claim1
+status: {}

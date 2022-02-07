@@ -1,0 +1,11 @@
+image:
+  repository: nginx
+  tag: latest
+
+
+localstack:
+  - name: values
+    chart: none/values
+    namespace: localstack
+    version: 0.0.1
+    installed: false
