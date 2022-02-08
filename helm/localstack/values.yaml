@@ -9,3 +9,6 @@ localstack:
     namespace: localstack
     version: 0.0.1
     installed: false
+
+hostname: localstack-web
+

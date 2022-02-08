@@ -1,11 +1,16 @@
+k config set-context minikube
+
 k create namespace localstack
 
 namespace=localstack
 
 # helm deployment
-helm upgrade --debug --install \ 
-localstack ./localstack -n localstack \
---atomic --timeout 1m 
+helm upgrade --debug --install localstack ./helm/localstack -n localstack \
+--atomic --timeout 3m \
+--kube-context minikube \
+-f ./helm/prod/prod.yaml \
+--namespace=localstack
+
 
 #list all charts in namespace
 helm ls -n $namespace
@@ -16,6 +21,9 @@ k get all -o wide -n $namespace
 # logs
 PODSRV=$(k get pod -l app=localstack-server -o jsonpath="{.items[0].metadata.name}" -n $namespace)
 k logs -f $PODSRV  -n $namespace
+
+PODWEB=$(k get pod -l app=localstack-web -o jsonpath="{.items[0].metadata.name}" -n $namespace)
+k logs -f $PODWEB  -n $namespace
 
 # start service and prints the url
 minikube service localstack-service -n $namespace --url

@@ -5,16 +5,17 @@ metadata:
   annotations:
     kompose.cmd: kompose -f docker-compose.localstack.yml convert -c
     kompose.version: 1.21.0 (992df58d8)
+    external-dns.alpha.kubernetes.io/hostname: {{ .Values.hostname }}
   creationTimestamp: null
   labels:
     app: localstack
     io.kompose.service: localstack
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
-    - name: "4566"
-      port: 4566
-      targetPort: 4566
+    - name: web
+      port: 80
+      targetPort: 8080
   selector:
-    app: localstack-server
+    app: localstack-web
     io.kompose.service: localstack

@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: kompose -f docker-compose.localstack.yml convert -c
-    kompose.version: 1.21.0 (992df58d8)
-  creationTimestamp: null
+  name: {{ .Release.Name }}-web
   labels:
     app: localstack
     io.kompose.service: localstack
-  name: localstack-web
+  annotations:
+    kompose.cmd: kompose -f docker-compose.localstack.yml convert -c
+    kompose.version: 1.21.0 (992df58d8)
+
 spec:
   replicas: 1
   strategy:
@@ -23,25 +23,21 @@ spec:
   revisionHistoryLimit: 1
   template:
     metadata:
-      annotations:
-        kompose.cmd: kompose -f docker-compose.localstack.yml convert -c
-        kompose.version: 1.21.0 (992df58d8)
-      creationTimestamp: null
       labels:
+        app: localstack-web
         io.kompose.service: localstack
-      name: localstack
     spec:
-      affinity: { { .Values.affinity | toJson } }
+{{/*      affinity: { { .Values.affinity | toJson } }*/}}
       containers:
         - name: webserver
-          image: { { .Values.image.repository } }:{{ .Values.image.tag }}
+          image: "nginx:latest"
           ports:
-              - name: webserver
-                containerPort: 80
+            - name: webserver
+              containerPort: 80
           resources:
             requests:
-              memory: 5000Mi
-              cpu: 1000m
+              memory: 500Mi
+              cpu: 100m
           readinessProbe:
             httpGet:
               path: /

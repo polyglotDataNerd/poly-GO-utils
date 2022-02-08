@@ -1,0 +1,10 @@
+hostname: localstack-web
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: spot
+              operator: In
+              values:
+                - "false"
