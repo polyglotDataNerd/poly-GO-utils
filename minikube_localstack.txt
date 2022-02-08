@@ -11,7 +11,6 @@ helm upgrade --debug --install localstack ./helm/localstack -n localstack \
 -f ./helm/prod/prod.yaml \
 --namespace=localstack
 
-
 #list all charts in namespace
 helm ls -n $namespace
 
