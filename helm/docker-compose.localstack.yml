@@ -1,0 +1,22 @@
+version: '3'
+services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: "${LOCALSTACK_DOCKER_NAME-localstack}"
+    hostname: localstack
+    ports:
+      - '4566-4583:4566-4583'
+    network_mode: bridge
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+      - EDGE_PORT=4566
+      - SERVICES=${SERVICES-}
+      - DEBUG=${DEBUG-}
+      - DATA_DIR=${DATA_DIR-}
+      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR-}
+      - HOST_TMP_FOLDER=${TMPDIR:-/tmp/}localstack
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOSTNAME_EXTERNAL=localstack
+    volumes:
+      - "${TMPDIR:-/tmp}/localstack:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-service
+  annotations:
+    kompose.cmd: kompose -f docker-compose.localstack.yml convert -c
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    app: localstack
+    io.kompose.service: localstack
+spec:
+  type: NodePort
+  ports:
+    - name: "4566"
+      port: 4566
+      targetPort: 4566
+  selector:
+    app: localstack-server
+    io.kompose.service: localstack
