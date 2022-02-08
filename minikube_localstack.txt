@@ -3,9 +3,10 @@ k create namespace localstack
 namespace=localstack
 
 # helm deployment
-helm upgrade --debug --install \ 
-localstack ./localstack -n localstack \
---atomic --timeout 1m 
+helm upgrade --debug --install localstack ./helm/localstack -n localstack \
+--atomic --timeout 3m \
+--kube-context minikube \
+--namespace=localstack
 
 #list all charts in namespace
 helm ls -n $namespace
