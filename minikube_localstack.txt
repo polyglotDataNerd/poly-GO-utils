@@ -1,3 +1,5 @@
+k config set-context minikube
+
 k create namespace localstack
 
 namespace=localstack
