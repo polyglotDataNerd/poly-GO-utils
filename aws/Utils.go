@@ -387,10 +387,9 @@ func SESEmail(emailTo string, emailFrom string, subject string, body string) {
 
 }
 
-func SSMParams(params string, index int) (output string) {
+func SSMParams(params string, index int, session *session.Session) (output string) {
 	paramArray := strings.Split(params, ",")
-	sess := Settings{}
-	cli := ssm.New(sess.SessionGenerator())
+	cli := ssm.New(session)
 
 	/*SSM pattern*/
 	paramInput := ssm.GetParametersInput{Names: aws.StringSlice(paramArray), WithDecryption: aws.Bool(true)}

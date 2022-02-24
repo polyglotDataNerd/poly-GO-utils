@@ -10,11 +10,13 @@ metadata:
     app: localstack
     io.kompose.service: localstack
 spec:
-  type: NodePort
+  type: LoadBalancer
   ports:
     - name: "4566"
       port: 4566
       targetPort: 4566
+  externalIPs:
+    - "192.168.42.71"
   selector:
     app: localstack-server
     io.kompose.service: localstack
